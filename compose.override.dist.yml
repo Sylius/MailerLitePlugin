@@ -1,0 +1,9 @@
+# Copy this file to compose.override.yml for local development
+# Example overrides:
+services:
+    php:
+        environment:
+            XDEBUG_MODE: debug
+    mysql:
+        ports:
+            - "3306:3306"
