@@ -13,11 +13,9 @@ declare(strict_types=1);
 
 namespace Sylius\MailerLitePlugin\Controller;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
-use Sylius\MailerLitePlugin\Subscriber\NewsletterSubscriberInterface;
+use Sylius\MailerLitePlugin\Handler\CheckoutNewsletterSubscriptionHandlerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,8 +30,7 @@ final class NewsletterSubscriptionController
 {
     public function __construct(
         private readonly OrderRepositoryInterface $orderRepository,
-        private readonly NewsletterSubscriberInterface $newsletterSubscriber,
-        private readonly EntityManagerInterface $entityManager,
+        private readonly CheckoutNewsletterSubscriptionHandlerInterface $subscriptionHandler,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
         private readonly TranslatorInterface $translator,
@@ -55,28 +52,7 @@ final class NewsletterSubscriptionController
             throw new NotFoundHttpException();
         }
 
-        $customer = $order->getCustomer();
-
-        if (!$customer instanceof CustomerInterface) {
-            throw new NotFoundHttpException();
-        }
-
-        $customer->setSubscribedToNewsletter(true);
-
-        // Populate customer name from billing address if not already set
-        $billingAddress = $order->getBillingAddress();
-        if ($billingAddress !== null) {
-            if ($customer->getFirstName() === null && $billingAddress->getFirstName() !== null) {
-                $customer->setFirstName($billingAddress->getFirstName());
-            }
-            if ($customer->getLastName() === null && $billingAddress->getLastName() !== null) {
-                $customer->setLastName($billingAddress->getLastName());
-            }
-        }
-
-        $this->entityManager->flush();
-
-        $this->newsletterSubscriber->subscribe($customer);
+        $this->subscriptionHandler->handle($order);
 
         /** @var FlashBagInterface $flashBag */
         $flashBag = $request->getSession()->getBag('flashes');

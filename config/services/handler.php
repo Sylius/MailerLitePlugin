@@ -13,21 +13,20 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use Sylius\MailerLitePlugin\Controller\NewsletterSubscriptionController;
+use Sylius\MailerLitePlugin\Handler\CheckoutNewsletterSubscriptionHandler;
 use Sylius\MailerLitePlugin\Handler\CheckoutNewsletterSubscriptionHandlerInterface;
+use Sylius\MailerLitePlugin\Subscriber\NewsletterSubscriberInterface;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
     $services
-        ->set('sylius_mailerlite.controller.newsletter_subscription', NewsletterSubscriptionController::class)
+        ->set('sylius_mailerlite.handler.checkout_newsletter_subscription', CheckoutNewsletterSubscriptionHandler::class)
         ->args([
-            service('sylius.repository.order'),
-            service(CheckoutNewsletterSubscriptionHandlerInterface::class),
-            service('router'),
-            service('security.csrf.token_manager'),
-            service('translator'),
+            service(NewsletterSubscriberInterface::class),
+            service('doctrine.orm.entity_manager'),
         ])
-        ->public()
     ;
+
+    $services->alias(CheckoutNewsletterSubscriptionHandlerInterface::class, 'sylius_mailerlite.handler.checkout_newsletter_subscription');
 };
