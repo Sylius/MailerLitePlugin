@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use Sylius\MailerLitePlugin\EventListener\CustomerRegistrationListener;
-use Sylius\MailerLitePlugin\Subscriber\NewsletterSubscriberInterface;
+use Sylius\MailerLitePlugin\Subscriber\MailerLiteSubscriberInterface;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
@@ -22,7 +22,7 @@ return static function (ContainerConfigurator $container): void {
     $services
         ->set('sylius_mailerlite.listener.customer_registration', CustomerRegistrationListener::class)
         ->args([
-            service(NewsletterSubscriberInterface::class),
+            service(MailerLiteSubscriberInterface::class),
         ])
         ->tag('kernel.event_listener', [
             'event' => 'sylius.customer.post_register',

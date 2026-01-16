@@ -11,22 +11,21 @@
 
 declare(strict_types=1);
 
-namespace Sylius\MailerLitePlugin\Handler;
+namespace Sylius\MailerLitePlugin\Subscriber;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
-use Sylius\MailerLitePlugin\Subscriber\NewsletterSubscriberInterface;
 
-final class CheckoutNewsletterSubscriptionHandler implements CheckoutNewsletterSubscriptionHandlerInterface
+final class GuestCheckoutNewsletterSubscriber implements GuestCheckoutNewsletterSubscriberInterface
 {
     public function __construct(
-        private readonly NewsletterSubscriberInterface $newsletterSubscriber,
+        private readonly MailerLiteSubscriberInterface $mailerLiteSubscriber,
         private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
-    public function handle(OrderInterface $order): void
+    public function subscribe(OrderInterface $order): void
     {
         $customer = $order->getCustomer();
 
@@ -40,7 +39,7 @@ final class CheckoutNewsletterSubscriptionHandler implements CheckoutNewsletterS
 
         $this->entityManager->flush();
 
-        $this->newsletterSubscriber->subscribe($customer);
+        $this->mailerLiteSubscriber->subscribe($customer);
     }
 
     private function populateCustomerNameFromBillingAddress(OrderInterface $order, CustomerInterface $customer): void

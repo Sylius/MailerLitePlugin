@@ -1,7 +1,7 @@
 {% set order = hookable_metadata.context.order %}
 {% set customer = order.customer %}
 
-{% if customer is not null and not customer.subscribedToNewsletter %}
+{% if customer is not null and customer.user is null and not customer.subscribedToNewsletter %}
 <div class="card bg-light border-0 my-4 p-4 text-center" {{ sylius_test_html_attribute('newsletter-subscription') }}>
     <div class="card-body">
         <h3 class="card-title h4 mb-3">{{ 'sylius_mailerlite.ui.stay_in_touch'|trans }}</h3>

@@ -11,11 +11,11 @@
 
 declare(strict_types=1);
 
-namespace Sylius\MailerLitePlugin\Handler;
+namespace Sylius\MailerLitePlugin\Subscriber;
 
 use Sylius\Component\Core\Model\OrderInterface;
 
-interface CheckoutNewsletterSubscriptionHandlerInterface
+interface GuestCheckoutNewsletterSubscriberInterface
 {
-    public function handle(OrderInterface $order): void;
+    public function subscribe(OrderInterface $order): void;
 }

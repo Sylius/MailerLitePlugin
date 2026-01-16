@@ -15,7 +15,7 @@ namespace Sylius\MailerLitePlugin\Controller;
 
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
-use Sylius\MailerLitePlugin\Handler\CheckoutNewsletterSubscriptionHandlerInterface;
+use Sylius\MailerLitePlugin\Subscriber\GuestCheckoutNewsletterSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,7 +30,7 @@ final class NewsletterSubscriptionController
 {
     public function __construct(
         private readonly OrderRepositoryInterface $orderRepository,
-        private readonly CheckoutNewsletterSubscriptionHandlerInterface $subscriptionHandler,
+        private readonly GuestCheckoutNewsletterSubscriberInterface $guestCheckoutSubscriber,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
         private readonly TranslatorInterface $translator,
@@ -52,7 +52,7 @@ final class NewsletterSubscriptionController
             throw new NotFoundHttpException();
         }
 
-        $this->subscriptionHandler->handle($order);
+        $this->guestCheckoutSubscriber->subscribe($order);
 
         /** @var FlashBagInterface $flashBag */
         $flashBag = $request->getSession()->getBag('flashes');

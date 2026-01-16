@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Sylius\MailerLitePlugin\Unit\Handler;
+namespace Tests\Sylius\MailerLitePlugin\Unit\Subscriber;
 
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -19,23 +19,23 @@ use PHPUnit\Framework\TestCase;
 use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
-use Sylius\MailerLitePlugin\Handler\CheckoutNewsletterSubscriptionHandler;
-use Sylius\MailerLitePlugin\Subscriber\NewsletterSubscriberInterface;
+use Sylius\MailerLitePlugin\Subscriber\GuestCheckoutNewsletterSubscriber;
+use Sylius\MailerLitePlugin\Subscriber\MailerLiteSubscriberInterface;
 
-final class CheckoutNewsletterSubscriptionHandlerTest extends TestCase
+final class GuestCheckoutNewsletterSubscriberTest extends TestCase
 {
-    private MockObject&NewsletterSubscriberInterface $newsletterSubscriber;
+    private MockObject&MailerLiteSubscriberInterface $mailerLiteSubscriber;
 
     private MockObject&EntityManagerInterface $entityManager;
 
-    private CheckoutNewsletterSubscriptionHandler $handler;
+    private GuestCheckoutNewsletterSubscriber $subscriber;
 
     protected function setUp(): void
     {
-        $this->newsletterSubscriber = $this->createMock(NewsletterSubscriberInterface::class);
+        $this->mailerLiteSubscriber = $this->createMock(MailerLiteSubscriberInterface::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->handler = new CheckoutNewsletterSubscriptionHandler(
-            $this->newsletterSubscriber,
+        $this->subscriber = new GuestCheckoutNewsletterSubscriber(
+            $this->mailerLiteSubscriber,
             $this->entityManager,
         );
     }
@@ -52,9 +52,9 @@ final class CheckoutNewsletterSubscriptionHandlerTest extends TestCase
 
         $customer->expects($this->once())->method('setSubscribedToNewsletter')->with(true);
         $this->entityManager->expects($this->once())->method('flush');
-        $this->newsletterSubscriber->expects($this->once())->method('subscribe')->with($customer);
+        $this->mailerLiteSubscriber->expects($this->once())->method('subscribe')->with($customer);
 
-        $this->handler->handle($order);
+        $this->subscriber->subscribe($order);
     }
 
     public function testPopulatesCustomerNameFromBillingAddress(): void
@@ -76,9 +76,9 @@ final class CheckoutNewsletterSubscriptionHandlerTest extends TestCase
         $customer->expects($this->once())->method('setLastName')->with('Smith');
 
         $this->entityManager->expects($this->once())->method('flush');
-        $this->newsletterSubscriber->expects($this->once())->method('subscribe')->with($customer);
+        $this->mailerLiteSubscriber->expects($this->once())->method('subscribe')->with($customer);
 
-        $this->handler->handle($order);
+        $this->subscriber->subscribe($order);
     }
 
     public function testDoesNotOverwriteExistingCustomerName(): void
@@ -99,7 +99,7 @@ final class CheckoutNewsletterSubscriptionHandlerTest extends TestCase
         $customer->expects($this->never())->method('setFirstName');
         $customer->expects($this->never())->method('setLastName');
 
-        $this->handler->handle($order);
+        $this->subscriber->subscribe($order);
     }
 
     public function testDoesNothingWhenOrderHasNoCustomer(): void
@@ -108,8 +108,8 @@ final class CheckoutNewsletterSubscriptionHandlerTest extends TestCase
         $order->method('getCustomer')->willReturn(null);
 
         $this->entityManager->expects($this->never())->method('flush');
-        $this->newsletterSubscriber->expects($this->never())->method('subscribe');
+        $this->mailerLiteSubscriber->expects($this->never())->method('subscribe');
 
-        $this->handler->handle($order);
+        $this->subscriber->subscribe($order);
     }
 }

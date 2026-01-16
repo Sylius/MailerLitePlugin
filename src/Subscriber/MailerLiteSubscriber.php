@@ -18,7 +18,7 @@ use Psr\Log\NullLogger;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\MailerLitePlugin\Client\MailerLiteClientInterface;
 
-final class NewsletterSubscriber implements NewsletterSubscriberInterface
+final class MailerLiteSubscriber implements MailerLiteSubscriberInterface
 {
     private LoggerInterface $logger;
 

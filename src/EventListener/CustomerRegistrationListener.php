@@ -14,13 +14,13 @@ declare(strict_types=1);
 namespace Sylius\MailerLitePlugin\EventListener;
 
 use Sylius\Component\Core\Model\CustomerInterface;
-use Sylius\MailerLitePlugin\Subscriber\NewsletterSubscriberInterface;
+use Sylius\MailerLitePlugin\Subscriber\MailerLiteSubscriberInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 final class CustomerRegistrationListener
 {
     public function __construct(
-        private readonly NewsletterSubscriberInterface $newsletterSubscriber,
+        private readonly MailerLiteSubscriberInterface $mailerLiteSubscriber,
     ) {
     }
 
@@ -36,6 +36,6 @@ final class CustomerRegistrationListener
             return;
         }
 
-        $this->newsletterSubscriber->subscribe($customer);
+        $this->mailerLiteSubscriber->subscribe($customer);
     }
 }
