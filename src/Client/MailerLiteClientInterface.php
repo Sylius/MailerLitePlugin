@@ -11,6 +11,13 @@
 
 declare(strict_types=1);
 
-return [
-    Sylius\MailerLitePlugin\SyliusMailerLitePlugin::class => ['all' => true],
-];
+namespace Sylius\MailerLitePlugin\Client;
+
+interface MailerLiteClientInterface
+{
+    public function post(string $endpoint, array $data): array;
+
+    public function get(string $endpoint): array;
+
+    public function isConfigured(): bool;
+}

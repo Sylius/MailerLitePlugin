@@ -11,6 +11,11 @@
 
 declare(strict_types=1);
 
-return [
-    Sylius\MailerLitePlugin\SyliusMailerLitePlugin::class => ['all' => true],
-];
+namespace Sylius\MailerLitePlugin\Subscriber;
+
+use Sylius\Component\Core\Model\CustomerInterface;
+
+interface NewsletterSubscriberInterface
+{
+    public function subscribe(CustomerInterface $customer): void;
+}
