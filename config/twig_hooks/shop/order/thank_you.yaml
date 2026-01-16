@@ -1,0 +1,6 @@
+sylius_twig_hooks:
+    hooks:
+        'sylius_shop.order.thank_you.content':
+            newsletter:
+                template: '@SyliusMailerLitePlugin/shop/order/thank_you/content/newsletter.html.twig'
+                priority: 50

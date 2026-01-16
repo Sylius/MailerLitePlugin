@@ -1,1 +1,5 @@
-# Define your own admin routes here
+sylius_mailerlite_subscribe:
+    path: /newsletter/subscribe/{orderToken}
+    methods: [POST]
+    defaults:
+        _controller: sylius_mailerlite.controller.newsletter_subscription::subscribeAction
