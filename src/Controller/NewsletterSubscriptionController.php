@@ -62,6 +62,18 @@ final class NewsletterSubscriptionController
         }
 
         $customer->setSubscribedToNewsletter(true);
+
+        // Populate customer name from billing address if not already set
+        $billingAddress = $order->getBillingAddress();
+        if ($billingAddress !== null) {
+            if ($customer->getFirstName() === null && $billingAddress->getFirstName() !== null) {
+                $customer->setFirstName($billingAddress->getFirstName());
+            }
+            if ($customer->getLastName() === null && $billingAddress->getLastName() !== null) {
+                $customer->setLastName($billingAddress->getLastName());
+            }
+        }
+
         $this->entityManager->flush();
 
         $this->newsletterSubscriber->subscribe($customer);
