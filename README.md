@@ -31,7 +31,7 @@
 2. Import configuration:
 
     ```yaml
-    # config/packages/sylius_mailer_lite.yaml
+    # config/packages/sylius_mailerlite.yaml
     imports:
         - { resource: "@SyliusMailerLitePlugin/config/config.yaml" }
     ```
@@ -39,16 +39,16 @@
 3. Import routes:
 
     ```yaml
-    # config/routes/sylius_mailer_lite.yaml
-    sylius_mailer_lite:
+    # config/routes/sylius_mailerlite.yaml
+    sylius_mailerlite:
         resource: "@SyliusMailerLitePlugin/config/routes.yaml"
     ```
 
 4. Configure your MailerLite API key:
 
     ```yaml
-    # config/packages/sylius_mailer_lite.yaml
-    sylius_mailer_lite:
+    # config/packages/sylius_mailerlite.yaml
+    sylius_mailerlite:
         api_key: '%env(MAILERLITE_API_KEY)%'
     ```
 

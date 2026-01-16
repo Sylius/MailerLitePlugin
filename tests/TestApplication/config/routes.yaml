@@ -1,5 +1,5 @@
-sylius_mailer_lite_admin:
+sylius_mailerlite_admin:
     resource: "@SyliusMailerLitePlugin/config/routes/admin.yaml"
 
-sylius_mailer_lite_shop:
+sylius_mailerlite_shop:
     resource: "@SyliusMailerLitePlugin/config/routes/shop.yaml"

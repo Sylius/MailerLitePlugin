@@ -9,18 +9,24 @@ use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceE
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
 final class SyliusMailerLiteExtension extends AbstractResourceExtension implements PrependExtensionInterface
 {
     use PrependDoctrineMigrationsTrait;
 
-    /** @psalm-suppress UnusedVariable */
     public function load(array $configs, ContainerBuilder $container): void
     {
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
+        $loader->load('services.php');
 
-        $loader->load('services.xml');
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);
+
+        $container->setParameter('sylius_mailerlite.api_key', $config['api_key']);
+        $container->setParameter(
+            'sylius_mailerlite.api_url',
+            $config['api_url'] ?: $container->getParameter('sylius_mailerlite.api_base_url'),
+        );
     }
 
     public function prepend(ContainerBuilder $container): void

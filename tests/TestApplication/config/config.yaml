@@ -2,6 +2,9 @@ imports:
     - { resource: "@SyliusMailerLitePlugin/config/config.yaml" }
     - { resource: "services_test.php" }
 
+sylius_mailerlite:
+    api_key: '%env(MAILERLITE_API_KEY)%'
+
 twig:
     paths:
         '%kernel.project_dir%/../../../tests/TestApplication/templates': ~
