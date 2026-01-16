@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\MailerLitePlugin\Client;
@@ -22,48 +31,56 @@ final class MailerLiteClient implements MailerLiteClientInterface
         $this->logger = $logger ?? new NullLogger();
     }
 
-    public function addSubscriber(string $email, ?string $name = null, ?string $lastName = null): void
+    public function post(string $endpoint, array $data): array
     {
-        if ($this->apiKey === '') {
-            $this->logger->warning('[MailerLite] API key not configured, skipping subscriber sync');
+        return $this->request('POST', $endpoint, $data);
+    }
 
-            return;
-        }
+    public function get(string $endpoint): array
+    {
+        return $this->request('GET', $endpoint);
+    }
 
-        $data = ['email' => $email];
+    public function isConfigured(): bool
+    {
+        return $this->apiKey !== '';
+    }
 
-        if ($name !== null || $lastName !== null) {
-            $data['fields'] = array_filter([
-                'name' => $name,
-                'last_name' => $lastName,
-            ]);
+    private function request(string $method, string $endpoint, array $data = []): array
+    {
+        $options = [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ],
+        ];
+
+        if ($data !== []) {
+            $options['json'] = $data;
         }
 
         try {
-            $response = $this->httpClient->request('POST', $this->apiUrl . '/subscribers', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->apiKey,
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => $data,
-            ]);
+            $response = $this->httpClient->request($method, $this->apiUrl . $endpoint, $options);
 
-            $statusCode = $response->getStatusCode();
-
-            if ($statusCode === 201) {
-                $this->logger->info('[MailerLite] Subscriber created', ['email' => $email]);
-            } elseif ($statusCode === 200) {
-                $this->logger->info('[MailerLite] Subscriber updated', ['email' => $email]);
-            }
+            return [
+                'status_code' => $response->getStatusCode(),
+                'data' => $response->toArray(false),
+            ];
         } catch (HttpExceptionInterface $e) {
             $statusCode = $e->getResponse()->getStatusCode();
             $content = $e->getResponse()->getContent(false);
 
             $this->logger->error('[MailerLite] API error', [
-                'email' => $email,
+                'method' => $method,
+                'endpoint' => $endpoint,
                 'status_code' => $statusCode,
                 'response' => $content,
             ]);
+
+            return [
+                'status_code' => $statusCode,
+                'error' => $content,
+            ];
         }
     }
 }

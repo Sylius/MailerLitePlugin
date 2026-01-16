@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\MailerLitePlugin\DependencyInjection;
@@ -21,8 +30,8 @@ final class Configuration implements ConfigurationInterface
                     ->info('MailerLite API key')
                 ->end()
                 ->scalarNode('api_url')
-                    ->defaultValue('%env(default::MAILERLITE_API_URL)%')
-                    ->info('MailerLite API base URL (optional, uses default if not set)')
+                    ->defaultValue('https://connect.mailerlite.com/api')
+                    ->info('MailerLite API base URL')
                 ->end()
             ->end()
         ;

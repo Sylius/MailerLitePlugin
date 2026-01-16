@@ -15,6 +15,7 @@ return static function (ContainerConfigurator $container): void {
         ->set('sylius_mailerlite.subscriber.newsletter', NewsletterSubscriber::class)
         ->args([
             service(MailerLiteClientInterface::class),
+            service('logger')->nullOnInvalid(),
         ]);
 
     $services->alias(NewsletterSubscriberInterface::class, 'sylius_mailerlite.subscriber.newsletter');

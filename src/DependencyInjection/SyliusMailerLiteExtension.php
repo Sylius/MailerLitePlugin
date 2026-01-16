@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\MailerLitePlugin\DependencyInjection;
@@ -23,10 +32,7 @@ final class SyliusMailerLiteExtension extends AbstractResourceExtension implemen
         $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);
 
         $container->setParameter('sylius_mailerlite.api_key', $config['api_key']);
-        $container->setParameter(
-            'sylius_mailerlite.api_url',
-            $config['api_url'] ?: $container->getParameter('sylius_mailerlite.api_base_url'),
-        );
+        $container->setParameter('sylius_mailerlite.api_url', $config['api_url']);
     }
 
     public function prepend(ContainerBuilder $container): void
@@ -49,5 +55,10 @@ final class SyliusMailerLiteExtension extends AbstractResourceExtension implemen
         return [
             'Sylius\Bundle\CoreBundle\Migrations',
         ];
+    }
+
+    public function getAlias(): string
+    {
+        return 'sylius_mailerlite';
     }
 }

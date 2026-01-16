@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Tests\Sylius\MailerLitePlugin\Unit\Client;
@@ -24,10 +33,11 @@ final class MailerLiteClientTest extends TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
     }
 
-    public function testAddSubscriberSendsCorrectRequest(): void
+    public function testPostSendsCorrectRequest(): void
     {
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(201);
+        $response->method('toArray')->willReturn(['id' => '123']);
 
         $this->httpClient
             ->expects($this->once())
@@ -38,19 +48,12 @@ final class MailerLiteClientTest extends TestCase
                 $this->callback(function (array $options): bool {
                     $this->assertSame('Bearer test-api-key', $options['headers']['Authorization']);
                     $this->assertSame('application/json', $options['headers']['Content-Type']);
-                    $this->assertSame('john@example.com', $options['json']['email']);
-                    $this->assertSame('John', $options['json']['fields']['name']);
-                    $this->assertSame('Doe', $options['json']['fields']['last_name']);
+                    $this->assertSame(['email' => 'john@example.com'], $options['json']);
 
                     return true;
                 }),
             )
             ->willReturn($response);
-
-        $this->logger
-            ->expects($this->once())
-            ->method('info')
-            ->with('[MailerLite] Subscriber created', ['email' => 'john@example.com']);
 
         $client = new MailerLiteClient(
             $this->httpClient,
@@ -59,23 +62,27 @@ final class MailerLiteClientTest extends TestCase
             $this->logger,
         );
 
-        $client->addSubscriber('john@example.com', 'John', 'Doe');
+        $result = $client->post('/subscribers', ['email' => 'john@example.com']);
+
+        $this->assertSame(201, $result['status_code']);
+        $this->assertSame(['id' => '123'], $result['data']);
     }
 
-    public function testAddSubscriberWithEmailOnly(): void
+    public function testGetSendsCorrectRequest(): void
     {
         $response = $this->createMock(ResponseInterface::class);
-        $response->method('getStatusCode')->willReturn(201);
+        $response->method('getStatusCode')->willReturn(200);
+        $response->method('toArray')->willReturn(['subscribers' => []]);
 
         $this->httpClient
             ->expects($this->once())
             ->method('request')
             ->with(
-                'POST',
+                'GET',
                 'https://connect.mailerlite.com/api/subscribers',
                 $this->callback(function (array $options): bool {
-                    $this->assertSame('john@example.com', $options['json']['email']);
-                    $this->assertArrayNotHasKey('fields', $options['json']);
+                    $this->assertSame('Bearer test-api-key', $options['headers']['Authorization']);
+                    $this->assertArrayNotHasKey('json', $options);
 
                     return true;
                 }),
@@ -89,24 +96,13 @@ final class MailerLiteClientTest extends TestCase
             $this->logger,
         );
 
-        $client->addSubscriber('john@example.com');
+        $result = $client->get('/subscribers');
+
+        $this->assertSame(200, $result['status_code']);
     }
 
-    public function testAddSubscriberLogsUpdateWhenSubscriberExists(): void
+    public function testIsConfiguredReturnsTrueWhenApiKeySet(): void
     {
-        $response = $this->createMock(ResponseInterface::class);
-        $response->method('getStatusCode')->willReturn(200);
-
-        $this->httpClient
-            ->expects($this->once())
-            ->method('request')
-            ->willReturn($response);
-
-        $this->logger
-            ->expects($this->once())
-            ->method('info')
-            ->with('[MailerLite] Subscriber updated', ['email' => 'john@example.com']);
-
         $client = new MailerLiteClient(
             $this->httpClient,
             'test-api-key',
@@ -114,20 +110,11 @@ final class MailerLiteClientTest extends TestCase
             $this->logger,
         );
 
-        $client->addSubscriber('john@example.com');
+        $this->assertTrue($client->isConfigured());
     }
 
-    public function testAddSubscriberSkipsWhenApiKeyEmpty(): void
+    public function testIsConfiguredReturnsFalseWhenApiKeyEmpty(): void
     {
-        $this->httpClient
-            ->expects($this->never())
-            ->method('request');
-
-        $this->logger
-            ->expects($this->once())
-            ->method('warning')
-            ->with('[MailerLite] API key not configured, skipping subscriber sync');
-
         $client = new MailerLiteClient(
             $this->httpClient,
             '',
@@ -135,10 +122,10 @@ final class MailerLiteClientTest extends TestCase
             $this->logger,
         );
 
-        $client->addSubscriber('john@example.com');
+        $this->assertFalse($client->isConfigured());
     }
 
-    public function testAddSubscriberLogsErrorOnApiFailure(): void
+    public function testPostLogsErrorOnApiFailure(): void
     {
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(422);
@@ -157,11 +144,13 @@ final class MailerLiteClientTest extends TestCase
             ->method('error')
             ->with(
                 '[MailerLite] API error',
-                [
-                    'email' => 'invalid-email',
-                    'status_code' => 422,
-                    'response' => '{"message":"Invalid email"}',
-                ],
+                $this->callback(function (array $context): bool {
+                    $this->assertSame('POST', $context['method']);
+                    $this->assertSame('/subscribers', $context['endpoint']);
+                    $this->assertSame(422, $context['status_code']);
+
+                    return true;
+                }),
             );
 
         $client = new MailerLiteClient(
@@ -171,6 +160,9 @@ final class MailerLiteClientTest extends TestCase
             $this->logger,
         );
 
-        $client->addSubscriber('invalid-email');
+        $result = $client->post('/subscribers', ['email' => 'invalid']);
+
+        $this->assertSame(422, $result['status_code']);
+        $this->assertArrayHasKey('error', $result);
     }
 }
