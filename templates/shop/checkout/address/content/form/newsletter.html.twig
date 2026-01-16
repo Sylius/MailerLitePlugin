@@ -1,0 +1,7 @@
+{% set form = hookable_metadata.context.form %}
+
+{% if form.subscribedToNewsletter is defined %}
+<div class="mb-5">
+    {{ form_row(form.subscribedToNewsletter, sylius_test_form_attribute('subscribe-to-newsletter')) }}
+</div>
+{% endif %}

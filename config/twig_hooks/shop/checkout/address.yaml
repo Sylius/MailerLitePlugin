@@ -1,0 +1,6 @@
+sylius_twig_hooks:
+    hooks:
+        'sylius_shop.checkout.address.content.form':
+            newsletter:
+                template: '@SyliusMailerLitePlugin/shop/checkout/address/content/form/newsletter.html.twig'
+                priority: 50

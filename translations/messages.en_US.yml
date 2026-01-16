@@ -1,0 +1,4 @@
+sylius_mailerlite:
+    form:
+        checkout:
+            subscribe_to_newsletter: Subscribe to our newsletter
