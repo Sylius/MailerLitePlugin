@@ -1,1 +1,2 @@
-# Put your plugin configuration here
+imports:
+    - { resource: '@SyliusMailerLitePlugin/config/twig_hooks/**/*.yaml' }

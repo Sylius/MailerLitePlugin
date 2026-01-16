@@ -1,0 +1,6 @@
+sylius_mailerlite:
+    ui:
+        stay_in_touch: Stay in touch!
+        newsletter_benefits: Subscribe to our newsletter and be the first to know about new products, exclusive offers and promotions.
+        subscribe_to_newsletter: Subscribe to newsletter
+    newsletter_subscribed: You have been successfully subscribed to our newsletter.

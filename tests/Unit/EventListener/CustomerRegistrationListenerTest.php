@@ -17,18 +17,18 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\MailerLitePlugin\EventListener\CustomerRegistrationListener;
-use Sylius\MailerLitePlugin\Subscriber\NewsletterSubscriberInterface;
+use Sylius\MailerLitePlugin\Subscriber\MailerLiteSubscriberInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 final class CustomerRegistrationListenerTest extends TestCase
 {
-    private MockObject&NewsletterSubscriberInterface $newsletterSubscriber;
+    private MockObject&MailerLiteSubscriberInterface $mailerLiteSubscriber;
 
     private CustomerRegistrationListener $listener;
 
     protected function setUp(): void
     {
-        $this->newsletterSubscriber = $this->createMock(NewsletterSubscriberInterface::class);
+        $this->newsletterSubscriber = $this->createMock(MailerLiteSubscriberInterface::class);
         $this->listener = new CustomerRegistrationListener($this->newsletterSubscriber);
     }
 
