@@ -18,21 +18,21 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\MailerLitePlugin\Client\MailerLiteClientInterface;
-use Sylius\MailerLitePlugin\Subscriber\NewsletterSubscriber;
+use Sylius\MailerLitePlugin\Subscriber\MailerLiteSubscriber;
 
-final class NewsletterSubscriberTest extends TestCase
+final class MailerLiteSubscriberTest extends TestCase
 {
     private MailerLiteClientInterface&MockObject $client;
 
     private LoggerInterface&MockObject $logger;
 
-    private NewsletterSubscriber $subscriber;
+    private MailerLiteSubscriber $subscriber;
 
     protected function setUp(): void
     {
         $this->client = $this->createMock(MailerLiteClientInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->subscriber = new NewsletterSubscriber($this->client, $this->logger);
+        $this->subscriber = new MailerLiteSubscriber($this->client, $this->logger);
     }
 
     public function testSubscribeCallsClientWithCorrectPayload(): void

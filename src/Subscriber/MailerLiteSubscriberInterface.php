@@ -15,7 +15,7 @@ namespace Sylius\MailerLitePlugin\Subscriber;
 
 use Sylius\Component\Core\Model\CustomerInterface;
 
-interface NewsletterSubscriberInterface
+interface MailerLiteSubscriberInterface
 {
     public function subscribe(CustomerInterface $customer): void;
 }
